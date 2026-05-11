@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>HTTP com Fetch</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f5f5f5;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    input {
+      padding: 8px;
+      margin: 4px;
+    }
+
+    button {
+      padding: 8px 12px;
+      margin: 4px;
+      cursor: pointer;
+    }
+
+    .produto {
+      background-color: white;
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+
+    .area {
+      background-color: white;
+      padding: 16px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Exemplo HTTP com Fetch</h1>
+
+  <div class="area">
+    <h2>Cadastrar produto - POST</h2>
+
+    <input id="nome" placeholder="Nome do produto">
+    <input id="preco" type="number" placeholder="Preço">
+
+    <button onclick="cadastrarProduto()">Cadastrar</button>
+  </div>
+
+  <div class="area">
+    <h2>Buscar produto por ID - GET</h2>
+
+    <input id="idBusca" type="number" placeholder="ID do produto">
+
+    <button onclick="buscarProdutoPorId()">Buscar</button>
+
+    <p id="resultadoBusca"></p>
+  </div>
+
+  <div class="area">
+    <h2>Atualizar produto - PUT</h2>
+
+    <input id="idAtualizar" type="number" placeholder="ID">
+    <input id="nomeAtualizar" placeholder="Novo nome">
+    <input id="precoAtualizar" type="number" placeholder="Novo preço">
+
+    <button onclick="atualizarProduto()">Atualizar</button>
+  </div>
+
+  <div class="area">
+    <h2>Lista de produtos - GET</h2>
+
+    <button onclick="listarProdutos()">Recarregar lista</button>
+
+    <div id="listaProdutos"></div>
+  </div>
+
+  <script>
+    const API_URL = "/produtos";
+
+    async function listarProdutos() {
+      const resposta = await fetch(API_URL);
+
+      const produtos = await resposta.json();
+
+      const lista = document.getElementById("listaProdutos");
+      lista.innerHTML = "";
+
+      produtos.forEach((produto) => {
+        const div = document.createElement("div");
+        div.className = "produto";
+
+        div.innerHTML = `
+          <strong>ID:</strong> ${produto.id}<br>
+          <strong>Nome:</strong> ${produto.nome}<br>
+          <strong>Preço:</strong> R$ ${produto.preco}<br>
+          <button onclick="excluirProduto(${produto.id})">Excluir - DELETE</button>
+        `;
+
+        lista.appendChild(div);
+      });
+    }
+
+    async function buscarProdutoPorId() {
+      const id = document.getElementById("idBusca").value;
+
+      const resposta = await fetch(`${API_URL}/${id}`);
+
+      const resultado = document.getElementById("resultadoBusca");
+
+      if (!resposta.ok) {
+        resultado.innerText = "Produto não encontrado.";
+        return;
+      }
+
+      const produto = await resposta.json();
+
+      resultado.innerText = `Produto encontrado: ${produto.nome} - R$ ${produto.preco}`;
+    }
+
+    async function cadastrarProduto() {
+      const nome = document.getElementById("nome").value;
+      const preco = document.getElementById("preco").value;
+
+      const resposta = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nome: nome,
+          preco: Number(preco)
+        })
+      });
+
+      if (!resposta.ok) {
+        alert("Erro ao cadastrar produto.");
+        return;
+      }
+
+      document.getElementById("nome").value = "";
+      document.getElementById("preco").value = "";
+
+      listarProdutos();
+    }
+
+    async function atualizarProduto() {
+      const id = document.getElementById("idAtualizar").value;
+      const nome = document.getElementById("nomeAtualizar").value;
+      const preco = document.getElementById("precoAtualizar").value;
+
+      const resposta = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nome: nome,
+          preco: Number(preco)
+        })
+      });
+
+      if (!resposta.ok) {
+        alert("Erro ao atualizar produto.");
+        return;
+      }
+
+      document.getElementById("idAtualizar").value = "";
+      document.getElementById("nomeAtualizar").value = "";
+      document.getElementById("precoAtualizar").value = "";
+
+      listarProdutos();
+    }
+
+    async function excluirProduto(id) {
+      const resposta = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE"
+      });
+
+      if (!resposta.ok) {
+        alert("Erro ao excluir produto.");
+        return;
+      }
+
+      listarProdutos();
+    }
+
+    listarProdutos();
+  </script>
+
+</body>
+</html>
