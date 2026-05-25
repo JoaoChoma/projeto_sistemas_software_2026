@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Pomodoro WebSocket</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      max-width: 600px;
+    }
+
+    input {
+      padding: 8px;
+      width: 120px;
+      margin-right: 8px;
+    }
+
+    button {
+      padding: 8px 12px;
+      cursor: pointer;
+      margin-right: 6px;
+    }
+
+    #mensagens {
+  margin-top: 20px;
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 6px;
+  min-height: 180px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+    .mensagem {
+      padding: 8px;
+      margin-bottom: 6px;
+      background-color: #eef;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Pomodoro com WebSocket</h1>
+
+    <p>Informe de quantos em quantos minutos o servidor deve avisar você.</p>
+
+    <input id="minutos" type="number" min="1" placeholder="Minutos">
+
+    <button onclick="iniciarPomodoro()">Iniciar</button>
+    <button onclick="pararPomodoro()">Parar</button>
+
+    <div id="mensagens"></div>
+  </div>
+
+  <script>
+    const socket = new WebSocket("ws://localhost:3000");
+
+    socket.onopen = () => {
+      adicionarMensagem("Conexão WebSocket aberta.");
+    };
+
+    socket.onmessage = (evento) => {
+        console.log("Mensagem recebida do servidor:", evento.data);
+      const dados = JSON.parse(evento.data);
+
+      if (dados.dataHora) {
+        adicionarMensagem(`${dados.dataHora} - ${dados.mensagem}`);
+      } else {
+        adicionarMensagem(dados.mensagem);
+      }
+    };
+
+    socket.onclose = () => {
+      adicionarMensagem("Conexão WebSocket fechada.");
+    };
+
+    socket.onerror = () => {
+      adicionarMensagem("Erro na conexão WebSocket.");
+    };
+
+    function iniciarPomodoro() {
+      const minutos = document.getElementById("minutos").value;
+
+      const mensagem = {
+        tipo: "INICIAR_POMODORO",
+        minutos: Number(minutos)
+      };
+
+      socket.send(JSON.stringify(mensagem));
+    }
+
+    function pararPomodoro() {
+      const mensagem = {
+        tipo: "PARAR_POMODORO"
+      };
+
+      socket.send(JSON.stringify(mensagem));
+    }
+
+    function adicionarMensagem(texto) {
+      const area = document.getElementById("mensagens");
+
+      const div = document.createElement("div");
+      div.className = "mensagem";
+      div.innerText = texto;
+
+      area.appendChild(div);
+      area.scrollTop = area.scrollHeight;
+    }
+  </script>
+
+</body>
+</html>
