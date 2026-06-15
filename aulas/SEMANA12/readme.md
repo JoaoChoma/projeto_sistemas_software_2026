@@ -51,3 +51,8 @@ A cada 25 minutos, servidor envia:
         |
         v
 Cliente recebe e exibe na tela
+
+
+
+
+https
