@@ -1,6 +1,7 @@
 # projeto_sistemas_software_2026
 
 Avaliação 02 - 02/07
+Atividade - 06/07
 
 
 # Projeto de Sistemas de Software 2026
