@@ -16,3 +16,11 @@
 - Utilizar o padrão de projeto DTO;
 - `Se possível` utilizar um padrão de projeto dos 23 GoF;
 
+`Dica:`
+- Criem um repositório para o back-end;
+- Criem um repositório para o front-end;
+
+---
+
+- Vocês irão tirar prints das operações do casos de uso para documentar o funcionamento;
+- Incluir os prints no repositório 
